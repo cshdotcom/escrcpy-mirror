@@ -59,11 +59,13 @@ jobs:
           shopt -s globstar nullglob
           # --clobber replaces assets that already exist, making this
           # workflow safe to re-run after a partial failure.
-          gh release upload "$TARGET_TAG" /tmp/assets/* --clobber
+          # --repo is required because this job never checks out the repo.
+          gh release upload "$TARGET_TAG" /tmp/assets/* --clobber \
+            --repo "$GITHUB_REPOSITORY"
           echo "::endgroup::"
 
           echo "::group::Verify target release"
-          gh release view "$TARGET_TAG" --json assets --jq \
+          gh release view "$TARGET_TAG" --repo "$GITHUB_REPOSITORY" --json assets --jq \
             '.assets[] | "\(.name)\t\(.size)"' | tee /tmp/target-assets.txt
           echo "::endgroup::"
 
