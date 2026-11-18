@@ -1,3 +1,6 @@
+> [!IMPORTANT]
+> **I am currently seeking new career opportunities.** If you have a suitable opportunity, please contact me at [viarotel@foxmail.com](mailto:viarotel@foxmail.com).
+
 <div style="display:flex;">
   <img src="https://cdn.jsdelivr.net/gh/viarotel/resources@latest/logos/escrcpy.png" alt="viarotel-escrcpy" width="108px">
 </div>
@@ -80,6 +83,7 @@ This project owes its existence to the following open-source projects:
 ## Friendly Links
 
 - [ADB Device Manager 2](https://github.com/Shrey113/Adb-Device-Manager-2)
+- [FreeControl2](https://github.com/pdone/FreeControl2)
 
 ## Donate
 

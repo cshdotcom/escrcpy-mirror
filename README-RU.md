@@ -1,3 +1,6 @@
+> [!IMPORTANT]
+> **Сейчас я ищу новые карьерные возможности.** Если у вас есть подходящее предложение, свяжитесь со мной по адресу [viarotel@foxmail.com](mailto:viarotel@foxmail.com).
+
 <div style="display:flex;">
   <img src="https://cdn.jsdelivr.net/gh/viarotel/resources@latest/logos/escrcpy.png" alt="viarotel-escrcpy" width="108px">
 </div>
@@ -80,6 +83,7 @@
 ## Партнёрские ссылки
 
 - [ADB Device Manager 2](https://github.com/Shrey113/Adb-Device-Manager-2)
+- [FreeControl2](https://github.com/pdone/FreeControl2)
 
 ## Поддержка
 
