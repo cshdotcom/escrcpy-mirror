@@ -1,0 +1,77 @@
+name: mirror-release-assets
+
+# Mirrors all release assets from an upstream repository release to the
+# matching release in this repository. Runs on GitHub's own runners, which
+# have datacenter bandwidth to GitHub release storage (the whole 2.5 GB
+# escrcpy release transfers in a few minutes).
+#
+# Reusable: trigger manually with different source repo / tags.
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_repo:
+        description: 'Source repository (owner/name)'
+        required: true
+        default: 'viarotel-org/escrcpy'
+      source_tag:
+        description: 'Source release tag'
+        required: true
+        default: 'v3.3.1'
+      target_tag:
+        description: 'Target release tag in this repository'
+        required: true
+        default: 'v3.3.1'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mirror-release-assets
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Mirror release assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SOURCE_REPO: ${{ inputs.source_repo }}
+          SOURCE_TAG: ${{ inputs.source_tag }}
+          TARGET_TAG: ${{ inputs.target_tag }}
+        run: |
+          set -euo pipefail
+          echo "Mirroring $SOURCE_REPO@$SOURCE_TAG -> $GITHUB_REPOSITORY@$TARGET_TAG"
+
+          mkdir -p /tmp/assets
+
+          echo "::group::Download upstream assets"
+          gh release download "$SOURCE_TAG" --repo "$SOURCE_REPO" --dir /tmp/assets --clobber
+          echo "::endgroup::"
+
+          echo "Downloaded files:"
+          ls -lh /tmp/assets
+          echo "Total size: $(du -sh /tmp/assets | cut -f1)"
+
+          echo "::group::Upload to target release"
+          shopt -s globstar nullglob
+          # --clobber replaces assets that already exist, making this
+          # workflow safe to re-run after a partial failure.
+          gh release upload "$TARGET_TAG" /tmp/assets/* --clobber
+          echo "::endgroup::"
+
+          echo "::group::Verify target release"
+          gh release view "$TARGET_TAG" --json assets --jq \
+            '.assets[] | "\(.name)\t\(.size)"' | tee /tmp/target-assets.txt
+          echo "::endgroup::"
+
+          EXPECTED=$(gh release view "$SOURCE_TAG" --repo "$SOURCE_REPO" --json assets --jq '.assets | length')
+          ACTUAL=$(wc -l < /tmp/target-assets.txt)
+          echo "Expected $EXPECTED assets, target has $ACTUAL"
+          if [ "$EXPECTED" != "$ACTUAL" ]; then
+            echo "::error::Asset count mismatch ($EXPECTED expected vs $ACTUAL actual)"
+            exit 1
+          fi
+          echo "All $ACTUAL assets mirrored successfully."
